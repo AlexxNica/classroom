@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 class AssignmentInvitationsController < ApplicationController
-  layout 'layouts/invitations'
+  include InvitationsControllerMethods
 
-  before_action :check_user_has_identifier, only: [:show]
   before_action :check_user_not_previous_acceptee, only: [:show]
   before_action :ensure_github_repo_exists, only: [:successful_invitation]
 
@@ -26,33 +25,16 @@ class AssignmentInvitationsController < ApplicationController
     end
   end
 
-  def successful_invitation; end
-
   private
 
   def required_scopes
     GitHubClassroom::Scopes::ASSIGNMENT_STUDENT
   end
 
-  def assignment
-    @assignment ||= invitation.assignment
-  end
-  helper_method :assignment
-
   def assignment_repo
     @assignment_repo ||= AssignmentRepo.find_by(assignment: assignment, user: current_user)
   end
   helper_method :assignment_repo
-
-  def invitation
-    @invitation ||= AssignmentInvitation.find_by!(key: params[:id])
-  end
-  helper_method :invitation
-
-  def organization
-    @organization ||= assignment.organization
-  end
-  helper_method :organization
 
   def create_assignment_repo
     result = invitation.redeem_for(current_user)
@@ -63,21 +45,6 @@ class AssignmentInvitationsController < ApplicationController
       flash[:error] = result.error
       redirect_to assignment_invitation_path(invitation)
     end
-  end
-
-  def student_identifier
-    @student_identifier ||= StudentIdentifier.find_by(user: current_user,
-                                                      student_identifier_type: assignment.student_identifier_type)
-  end
-  helper_method :student_identifier
-
-  def new_student_identifier_params
-    params
-      .require(:student_identifier)
-      .permit(:value)
-      .merge(user: current_user,
-             organization: organization,
-             student_identifier_type: assignment.student_identifier_type)
   end
 
   def check_user_has_identifier

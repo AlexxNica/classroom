@@ -6,27 +6,24 @@ class User < ApplicationRecord
 
   has_many :repo_accesses, dependent: :destroy
   has_many :assignment_repos
+  has_many :student_identifiers
 
   has_and_belongs_to_many :organizations
 
   validates :last_active_at, presence: true
 
   validates :token, presence: true, uniqueness: true
-
-  validates :uid, presence: true
-  validates :uid, uniqueness: true
+  validates :uid,   presence: true, uniqueness: true
 
   before_save :ensure_no_token_scope_loss
 
   before_validation(on: :create) { ensure_last_active_at_presence }
 
+  delegate :authorized_access_token?, to: :github_user
+
   def assign_from_auth_hash(hash)
     user_attributes = AuthHash.new(hash).user_info
     update_attributes(user_attributes)
-  end
-
-  def authorized_access_token?
-    github_user.authorized_access_token?
   end
 
   def self.create_from_auth_hash(hash)
@@ -54,8 +51,11 @@ class User < ApplicationRecord
     site_admin
   end
 
-  def identifier(type)
-    StudentIdentifier.find_by(user: self, student_identifier_type: type)
+  def identifier_for(organization:, type:)
+    student_identifiers.find_by(
+      organization: organization,
+      student_identifier_type: type
+    )
   end
 
   private

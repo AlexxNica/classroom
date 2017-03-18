@@ -29,8 +29,5 @@ Metrics/BlockLength:
   Exclude:
     - 'spec/**/*'
 
-Rails/Delegate:
-  Enabled: false
-
 Rails/HasAndBelongsToMany:
   Enabled: false

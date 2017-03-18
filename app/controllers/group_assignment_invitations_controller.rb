@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-# rubocop:disable ClassLength
 class GroupAssignmentInvitationsController < ApplicationController
   layout 'layouts/invitations'
 
@@ -13,20 +12,6 @@ class GroupAssignmentInvitationsController < ApplicationController
 
   def show
     @groups = invitation.groups.map { |group| [group.title, group.id] }
-  end
-
-  def identifier
-    not_found if student_identifier || group_assignment.student_identifier_type.nil?
-    @student_identifier = StudentIdentifier.new
-  end
-
-  def submit_identifier
-    @student_identifier = StudentIdentifier.new(new_student_identifier_params)
-    if @student_identifier.save
-      redirect_to group_assignment_invitation_path
-    else
-      render :identifier
-    end
   end
 
   def accept; end
@@ -44,8 +29,6 @@ class GroupAssignmentInvitationsController < ApplicationController
       redirect_to successful_invitation_group_assignment_invitation_path
     end
   end
-
-  def successful_invitation; end
 
   private
 
