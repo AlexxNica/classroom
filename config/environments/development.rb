@@ -17,16 +17,22 @@ Rails.application.configure do
   if Rails.root.join('tmp', 'caching-dev.txt').exist?
     config.action_controller.perform_caching = true
 
+    memcachedcloud_servers = ENV.fetch('MEMCACHEDCLOUD_SERVERS', 'http://locacalhost:11211').split(',')
+
     dalli_store_config = {
       namespace:  'CLASSROOM_DEVELOPMENT',
       expires_in: (ENV['REQUEST_CACHE_TIMEOUT'] || 30).to_i.minutes,
-      pool_size:  5
+      pool_size:  (ENV['RAILS_MAX_THREADS'] || 5).to_i
     }
 
-    config.cache_store = :dalli_store, 'http://locacalhost:11211', dalli_store_config
+    config.cache_store = :dalli_store, memcachedcloud_servers, dalli_store_config
 
     config.public_file_server.headers = {
       'Cache-Control' => 'public, max-age=172800'
+    }
+
+    config.peek.adapter = :memcache, {
+      client: Dalli::Client.new(memcachedcloud_servers, dalli_store_name_and_password)
     }
   else
     config.action_controller.perform_caching = false

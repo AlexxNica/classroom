@@ -1,11 +1,15 @@
-development: &default
+default: &default
   adapter: postgresql
   encoding: unicode
-  database: classroom_development
-  pool: <%= ENV.fetch('RAILS_MAX_THREADS', 1) %>
+  host: postgres.service.classroom.internal
+  pool: <%= ENV.fetch('RAILS_MAX_THREADS', 5) %>
+  port: 5432
+  timeout: 5000
   username: postgres
-  password:
-  host: localhost
+
+development:
+  <<: *default
+  database: classroom_development
 
 test:
   <<: *default

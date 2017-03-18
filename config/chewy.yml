@@ -1,11 +1,14 @@
 # config/chewy.yml
 # separate environment configs
-test:
-  host: <%= ENV['ELASTICSEARCH_DEVELOPMENT_HOST'] %>
-  prefix: 'test'
+default: &default
+  host: 'localhost:9200'
 
 development:
-  host: <%= ENV['ELASTICSEARCH_DEVELOPMENT_HOST'] %>
+  <<: &default
+
+test:
+  <<: &default
+  prefix: 'test'
 
 production:
   host: <%= ENV['BONSAI_URL'] %>

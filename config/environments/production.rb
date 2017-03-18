@@ -49,7 +49,6 @@ Rails.application.configure do
   # Prepend all log lines with the following tags.
   config.log_tags = [:request_id]
 
-  # Use a different cache store in production.
   memcachedcloud_servers = ENV['MEMCACHEDCLOUD_SERVERS'].split(',')
 
   dalli_store_name_and_password = {
@@ -60,7 +59,7 @@ Rails.application.configure do
   dalli_store_config = {
     namespace:  'CLASSROOM',
     expires_in: (ENV['REQUEST_CACHE_TIMEOUT'] || 30).to_i.minutes,
-    pool_size:  5
+    pool_size:  (ENV['RAILS_MAX_THREADS'] || 5).to_i
   }
 
   config.cache_store = :dalli_store,
